@@ -50,6 +50,15 @@
     margin-top: 4px;
   }
 
+  .sync-status {
+    font-size: 0.65rem;
+    margin-top: 4px;
+    opacity: 0.7;
+  }
+
+  .sync-ok { color: var(--green); }
+  .sync-off { color: var(--accent); }
+
   .container {
     max-width: 480px;
     margin: 0 auto;
@@ -130,13 +139,8 @@
   }
 
   /* Form */
-  .form-section {
-    display: none;
-  }
-
-  .form-section.active {
-    display: block;
-  }
+  .form-section { display: none; }
+  .form-section.active { display: block; }
 
   .form-group {
     margin-bottom: 12px;
@@ -205,18 +209,11 @@
     margin-top: 4px;
   }
 
-  .btn-add:active {
-    transform: scale(0.98);
-  }
+  .btn-add:active { transform: scale(0.98); }
 
   /* Expense list */
-  .list-section {
-    display: none;
-  }
-
-  .list-section.active {
-    display: block;
-  }
+  .list-section { display: none; }
+  .list-section.active { display: block; }
 
   .expense-item {
     background: var(--surface);
@@ -227,7 +224,6 @@
     align-items: center;
     gap: 12px;
     position: relative;
-    transition: transform 0.2s, opacity 0.2s;
   }
 
   .expense-avatar {
@@ -245,10 +241,7 @@
   .avatar-pierre { background: rgba(245,166,35,0.2); color: var(--orange); }
   .avatar-bogi { background: rgba(233,69,96,0.2); color: var(--accent); }
 
-  .expense-info {
-    flex: 1;
-    min-width: 0;
-  }
+  .expense-info { flex: 1; min-width: 0; }
 
   .expense-desc {
     font-weight: 600;
@@ -295,10 +288,7 @@
     color: var(--text-dim);
   }
 
-  .empty-state .icon {
-    font-size: 2.5rem;
-    margin-bottom: 12px;
-  }
+  .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; }
 
   /* Filter */
   .filter-bar {
@@ -365,9 +355,7 @@
     padding: 20px;
   }
 
-  .modal-overlay.show {
-    display: flex;
-  }
+  .modal-overlay.show { display: flex; }
 
   .modal {
     background: var(--surface);
@@ -377,9 +365,7 @@
     max-width: 360px;
   }
 
-  .modal h3 {
-    margin-bottom: 16px;
-  }
+  .modal h3 { margin-bottom: 16px; }
 
   .modal input {
     width: 100%;
@@ -408,15 +394,8 @@
     cursor: pointer;
   }
 
-  .btn-cancel {
-    background: rgba(255,255,255,0.1);
-    color: var(--text);
-  }
-
-  .btn-confirm {
-    background: var(--accent);
-    color: white;
-  }
+  .btn-cancel { background: rgba(255,255,255,0.1); color: var(--text); }
+  .btn-confirm { background: var(--accent); color: white; }
 
   .btn-danger {
     background: transparent;
@@ -478,6 +457,7 @@
 <header>
   <h1>Balance Money</h1>
   <p>Pierre (70%) & Bogi (30%)</p>
+  <div class="sync-status" id="syncStatus"></div>
 </header>
 
 <div class="container">
@@ -579,57 +559,146 @@
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+
 <script>
+  // ============================================================
+  // FIREBASE CONFIG - A remplir avec tes infos Firebase
+  // Voir README.md pour les instructions de configuration
+  // ============================================================
+  const FIREBASE_CONFIG = {
+    apiKey: "REPLACE_ME",
+    authDomain: "REPLACE_ME.firebaseapp.com",
+    databaseURL: "https://REPLACE_ME-default-rtdb.firebaseio.com",
+    projectId: "REPLACE_ME",
+    storageBucket: "REPLACE_ME.firebasestorage.app",
+    messagingSenderId: "REPLACE_ME",
+    appId: "REPLACE_ME"
+  };
+  // ============================================================
+
+  // --- Firebase init ---
+  let db = null;
+  let firebaseReady = false;
+
+  if (FIREBASE_CONFIG.apiKey !== "REPLACE_ME") {
+    try {
+      firebase.initializeApp(FIREBASE_CONFIG);
+      db = firebase.database();
+      firebaseReady = true;
+    } catch (e) {
+      console.error('Firebase init failed:', e);
+    }
+  }
+
   // --- State ---
-  let state = loadState();
+  let trips = {};
+  let currentTrip = localStorage.getItem('bm-current-trip') || null;
   let currentFilter = 'all';
   let selectedPayer = 'Pierre';
   let selectedCat = 'resto';
 
-  function defaultState() {
-    return {
-      currentTrip: 'default',
-      trips: {
-        default: { name: 'Voyage 1', expenses: [] }
-      }
-    };
+  // --- Sync status ---
+  function setSyncStatus(ok) {
+    const el = document.getElementById('syncStatus');
+    if (ok) {
+      el.textContent = 'Synchro Firebase active';
+      el.className = 'sync-status sync-ok';
+    } else {
+      el.textContent = 'Mode hors-ligne (localStorage)';
+      el.className = 'sync-status sync-off';
+    }
   }
 
-  function loadState() {
+  // --- Data layer ---
+  // Converts Firebase object { key: {expense} } to array with _key property
+  function expensesObjToArray(obj) {
+    if (!obj) return [];
+    return Object.entries(obj).map(([key, val]) => ({ ...val, _key: key }));
+  }
+
+  function getExpenses() {
+    const trip = trips[currentTrip];
+    if (!trip) return [];
+    return Array.isArray(trip.expenses) ? trip.expenses : expensesObjToArray(trip.expenses);
+  }
+
+  // --- Firebase listeners ---
+  if (firebaseReady) {
+    db.ref('trips').on('value', (snapshot) => {
+      trips = snapshot.val() || {};
+      // If no trips exist, create a default one
+      if (Object.keys(trips).length === 0) {
+        const ref = db.ref('trips').push();
+        ref.set({ name: 'Voyage 1' });
+        currentTrip = ref.key;
+        localStorage.setItem('bm-current-trip', currentTrip);
+        return; // onValue will fire again
+      }
+      // If currentTrip doesn't exist, pick first
+      if (!currentTrip || !trips[currentTrip]) {
+        currentTrip = Object.keys(trips)[0];
+        localStorage.setItem('bm-current-trip', currentTrip);
+      }
+      render();
+      setSyncStatus(true);
+    }, (err) => {
+      console.error('Firebase read error:', err);
+      setSyncStatus(false);
+      fallbackToLocalStorage();
+    });
+
+    // Connection state
+    db.ref('.info/connected').on('value', (snap) => {
+      setSyncStatus(snap.val() === true);
+    });
+  } else {
+    // No Firebase - use localStorage
+    fallbackToLocalStorage();
+  }
+
+  function fallbackToLocalStorage() {
+    setSyncStatus(false);
     try {
       const raw = localStorage.getItem('balance-money');
       if (raw) {
         const s = JSON.parse(raw);
-        if (s.trips && s.currentTrip) return s;
+        if (s.trips) {
+          trips = s.trips;
+          currentTrip = s.currentTrip || Object.keys(trips)[0];
+        }
       }
     } catch(e) {}
-    return defaultState();
+    if (Object.keys(trips).length === 0) {
+      const id = 'trip_' + Date.now();
+      trips[id] = { name: 'Voyage 1', expenses: [] };
+      currentTrip = id;
+    }
+    render();
   }
 
-  function saveState() {
-    localStorage.setItem('balance-money', JSON.stringify(state));
-  }
-
-  function getExpenses() {
-    return state.trips[state.currentTrip]?.expenses || [];
+  function saveToLocalBackup() {
+    localStorage.setItem('balance-money', JSON.stringify({ trips, currentTrip }));
   }
 
   // --- Trips ---
   function renderTripSelect() {
     const sel = document.getElementById('tripSelect');
     sel.innerHTML = '';
-    for (const [id, trip] of Object.entries(state.trips)) {
+    for (const [id, trip] of Object.entries(trips)) {
       const opt = document.createElement('option');
       opt.value = id;
       opt.textContent = trip.name;
-      if (id === state.currentTrip) opt.selected = true;
+      if (id === currentTrip) opt.selected = true;
       sel.appendChild(opt);
     }
   }
 
   function switchTrip() {
-    state.currentTrip = document.getElementById('tripSelect').value;
-    saveState();
+    currentTrip = document.getElementById('tripSelect').value;
+    localStorage.setItem('bm-current-trip', currentTrip);
     render();
   }
 
@@ -646,27 +715,42 @@
   function createTrip() {
     const name = document.getElementById('tripName').value.trim();
     if (!name) return;
-    const id = 'trip_' + Date.now();
-    state.trips[id] = { name, expenses: [] };
-    state.currentTrip = id;
-    saveState();
+
+    if (firebaseReady) {
+      const ref = db.ref('trips').push();
+      ref.set({ name });
+      currentTrip = ref.key;
+      localStorage.setItem('bm-current-trip', currentTrip);
+    } else {
+      const id = 'trip_' + Date.now();
+      trips[id] = { name, expenses: [] };
+      currentTrip = id;
+      saveToLocalBackup();
+      render();
+    }
+
     closeTripModal();
-    render();
     showToast('Voyage cree !');
   }
 
   function deleteCurrentTrip() {
-    const keys = Object.keys(state.trips);
+    const keys = Object.keys(trips);
     if (keys.length <= 1) {
       showToast('Impossible de supprimer le dernier voyage');
       return;
     }
-    const name = state.trips[state.currentTrip].name;
+    const name = trips[currentTrip]?.name || 'ce voyage';
     if (!confirm(`Supprimer "${name}" et toutes ses depenses ?`)) return;
-    delete state.trips[state.currentTrip];
-    state.currentTrip = Object.keys(state.trips)[0];
-    saveState();
-    render();
+
+    if (firebaseReady) {
+      db.ref('trips/' + currentTrip).remove();
+    } else {
+      delete trips[currentTrip];
+      saveToLocalBackup();
+    }
+    currentTrip = Object.keys(trips).filter(k => k !== currentTrip)[0] || Object.keys(trips)[0];
+    localStorage.setItem('bm-current-trip', currentTrip);
+    if (!firebaseReady) render();
     showToast('Voyage supprime');
   }
 
@@ -680,35 +764,45 @@
     if (!amount || amount <= 0) { showToast('Ajoute un montant valide'); return; }
 
     const expense = {
-      id: Date.now(),
       desc,
       amount,
       payer: selectedPayer,
       category: selectedCat,
-      date: date || new Date().toISOString().slice(0, 10)
+      date: date || new Date().toISOString().slice(0, 10),
+      createdAt: Date.now()
     };
 
-    getExpenses().push(expense);
-    saveState();
+    if (firebaseReady) {
+      db.ref('trips/' + currentTrip + '/expenses').push(expense);
+    } else {
+      if (!trips[currentTrip].expenses) trips[currentTrip].expenses = [];
+      expense.id = Date.now();
+      trips[currentTrip].expenses.push(expense);
+      saveToLocalBackup();
+      render();
+    }
 
     // Reset form
     document.getElementById('inputDesc').value = '';
     document.getElementById('inputAmount').value = '';
     document.getElementById('inputDate').value = new Date().toISOString().slice(0, 10);
 
-    render();
     showToast(`${formatMoney(amount)} ajoute !`);
   }
 
-  function deleteExpense(id) {
-    const expenses = getExpenses();
-    const idx = expenses.findIndex(e => e.id === id);
-    if (idx !== -1) {
-      expenses.splice(idx, 1);
-      saveState();
-      render();
-      showToast('Depense supprimee');
+  function deleteExpense(key) {
+    if (firebaseReady) {
+      db.ref('trips/' + currentTrip + '/expenses/' + key).remove();
+    } else {
+      const expenses = trips[currentTrip].expenses;
+      const idx = expenses.findIndex(e => e.id === key || e._key === key);
+      if (idx !== -1) {
+        expenses.splice(idx, 1);
+        saveToLocalBackup();
+        render();
+      }
     }
+    showToast('Depense supprimee');
   }
 
   // --- Rendering ---
@@ -720,9 +814,9 @@
 
   function renderSummary() {
     const expenses = getExpenses();
-    const total = expenses.reduce((s, e) => s + e.amount, 0);
-    const paidPierre = expenses.filter(e => e.payer === 'Pierre').reduce((s, e) => s + e.amount, 0);
-    const paidBogi = expenses.filter(e => e.payer === 'Bogi').reduce((s, e) => s + e.amount, 0);
+    const total = expenses.reduce((s, e) => s + (e.amount || 0), 0);
+    const paidPierre = expenses.filter(e => e.payer === 'Pierre').reduce((s, e) => s + (e.amount || 0), 0);
+    const paidBogi = expenses.filter(e => e.payer === 'Bogi').reduce((s, e) => s + (e.amount || 0), 0);
 
     const duePierre = total * 0.7;
     const dueBogi = total * 0.3;
@@ -734,8 +828,7 @@
     document.getElementById('dueBogi').textContent = `Doit : ${formatMoney(dueBogi)} (30%)`;
 
     const balanceEl = document.getElementById('balanceText');
-    // Positive = Pierre a trop paye, Bogi lui doit
-    const diff = paidPierre - duePierre; // = dueBogi - paidBogi
+    const diff = paidPierre - duePierre;
 
     if (Math.abs(diff) < 0.01) {
       balanceEl.textContent = 'Tout est equilibre !';
@@ -751,7 +844,14 @@
 
   function renderList() {
     const container = document.getElementById('expenseList');
-    let expenses = [...getExpenses()].reverse();
+    let expenses = [...getExpenses()];
+
+    // Sort by date desc, then createdAt desc
+    expenses.sort((a, b) => {
+      const dateCmp = (b.date || '').localeCompare(a.date || '');
+      if (dateCmp !== 0) return dateCmp;
+      return (b.createdAt || 0) - (a.createdAt || 0);
+    });
 
     if (currentFilter !== 'all') {
       expenses = expenses.filter(e => e.payer === currentFilter);
@@ -760,7 +860,7 @@
     if (expenses.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="icon">🧳</div>
+          <div class="icon">&#x1F9F3;</div>
           <p>${currentFilter !== 'all' ? 'Aucune depense pour ' + currentFilter : 'Aucune depense encore'}</p>
         </div>`;
       return;
@@ -771,19 +871,21 @@
       courses: 'Courses', activite: 'Activite', autre: 'Autre'
     };
 
-    container.innerHTML = expenses.map(e => `
+    container.innerHTML = expenses.map(e => {
+      const key = e._key || e.id;
+      return `
       <div class="expense-item">
         <div class="expense-avatar ${e.payer === 'Pierre' ? 'avatar-pierre' : 'avatar-bogi'}">
           ${e.payer === 'Pierre' ? 'P' : 'B'}
         </div>
         <div class="expense-info">
           <div class="expense-desc">${escHtml(e.desc)}</div>
-          <div class="expense-meta">${catLabels[e.category] || e.category} · ${formatDate(e.date)}</div>
+          <div class="expense-meta">${catLabels[e.category] || e.category} &middot; ${formatDate(e.date)}</div>
         </div>
-        <div class="expense-amount">${formatMoney(e.amount)}</div>
-        <button class="expense-delete" onclick="deleteExpense(${e.id})" title="Supprimer">&times;</button>
-      </div>
-    `).join('');
+        <div class="expense-amount">${formatMoney(e.amount || 0)}</div>
+        <button class="expense-delete" onclick="deleteExpense('${key}')" title="Supprimer">&times;</button>
+      </div>`;
+    }).join('');
   }
 
   // --- Tabs ---
@@ -841,7 +943,6 @@
   // --- Init ---
   document.getElementById('inputDate').value = new Date().toISOString().slice(0, 10);
 
-  // Handle Enter key in form
   document.getElementById('inputAmount').addEventListener('keydown', e => {
     if (e.key === 'Enter') addExpense();
   });
@@ -851,8 +952,6 @@
   document.getElementById('tripName').addEventListener('keydown', e => {
     if (e.key === 'Enter') createTrip();
   });
-
-  render();
 </script>
 
 </body>
