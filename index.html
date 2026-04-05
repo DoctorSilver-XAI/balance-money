@@ -2,70 +2,163 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Balance Money - Pierre & Bogi</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1a1a2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Balance Money</title>
 <style>
   :root {
-    --bg: #0f0f0f;
-    --surface: #1a1a2e;
+    --bg: #0a0a0f;
+    --surface: rgba(26, 26, 46, 0.65);
+    --surface-solid: #1a1a2e;
     --surface2: #16213e;
     --accent: #e94560;
     --accent2: #533483;
-    --text: #eee;
-    --text-dim: #999;
+    --text: #f0f0f0;
+    --text-dim: #888;
     --green: #4ecca3;
     --orange: #f5a623;
-    --radius: 12px;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --glass-border: rgba(255, 255, 255, 0.06);
+    --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+    --shadow-fab: 0 6px 24px rgba(233, 69, 96, 0.45);
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100dvh;
-    padding-bottom: 100px;
+    padding-bottom: 120px;
+    -webkit-font-smoothing: antialiased;
   }
 
+  /* ===== HEADER ===== */
   header {
-    background: linear-gradient(135deg, var(--surface2), var(--accent2));
-    padding: 24px 20px 20px;
+    background: linear-gradient(160deg, var(--surface2), var(--accent2));
+    padding: 20px 20px 16px;
+    padding-top: calc(20px + env(safe-area-inset-top));
     text-align: center;
     position: sticky;
     top: 0;
     z-index: 10;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    transition: padding 0.3s var(--ease);
   }
+
+  header.compact {
+    padding-top: calc(10px + env(safe-area-inset-top));
+    padding-bottom: 10px;
+  }
+
+  header.compact h1 { font-size: 1.1rem; }
+  header.compact .header-sub { display: none; }
 
   header h1 {
-    font-size: 1.4rem;
-    font-weight: 700;
+    font-size: 1.3rem;
+    font-weight: 800;
     letter-spacing: -0.5px;
+    transition: font-size 0.3s var(--ease);
   }
 
-  header p {
-    font-size: 0.8rem;
-    color: var(--text-dim);
-    margin-top: 4px;
+  .header-sub {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.5);
+    margin-top: 2px;
+    transition: opacity 0.3s var(--ease);
   }
 
   .sync-status {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     margin-top: 4px;
-    opacity: 0.7;
+    opacity: 0.6;
+    transition: color 0.3s;
   }
 
   .sync-ok { color: var(--green); }
   .sync-off { color: var(--accent); }
 
+  /* Language switcher */
+  .lang-switcher {
+    display: inline-flex;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-top: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .lang-btn {
+    padding: 5px 14px;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.25s var(--ease);
+  }
+
+  .lang-btn.active {
+    background: var(--accent);
+    color: white;
+  }
+
+  /* ===== CONTAINER ===== */
   .container {
     max-width: 480px;
     margin: 0 auto;
     padding: 16px;
   }
 
-  /* Summary cards */
+  /* ===== TRIP BAR ===== */
+  .trip-bar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .trip-bar select {
+    flex: 1;
+    padding: 11px 14px;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--text);
+    font-size: 0.9rem;
+    font-weight: 600;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .trip-bar button {
+    padding: 11px 14px;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--text);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s var(--ease);
+    min-height: 44px;
+  }
+
+  .trip-bar button:active { transform: scale(0.95); }
+
+  /* ===== SUMMARY CARDS ===== */
   .summary {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -75,100 +168,143 @@
 
   .card {
     background: var(--surface);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius);
-    padding: 14px;
+    padding: 16px;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.2s var(--ease);
   }
 
+  .card:active { transform: scale(0.98); }
+
   .card-label {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.2px;
     color: var(--text-dim);
-    margin-bottom: 4px;
+    margin-bottom: 6px;
+    font-weight: 600;
   }
 
   .card-value {
-    font-size: 1.4rem;
-    font-weight: 700;
+    font-size: 1.35rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.5px;
   }
 
   .card-full {
     grid-column: 1 / -1;
     text-align: center;
-    background: linear-gradient(135deg, var(--surface), var(--surface2));
-    border: 1px solid rgba(233,69,96,0.3);
+    background: linear-gradient(135deg, var(--surface), rgba(22, 33, 62, 0.6));
+    border: 1px solid rgba(233, 69, 96, 0.15);
   }
 
-  .card-full .card-value {
-    font-size: 1.6rem;
-  }
+  .card-full .card-value { font-size: 1.5rem; }
 
   .balance-settled { color: var(--green); }
   .balance-pierre { color: var(--orange); }
   .balance-bogi { color: var(--accent); }
 
   .person-detail {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--text-dim);
-    margin-top: 2px;
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
   }
 
-  /* Tabs */
+  /* ===== TABS ===== */
   .tabs {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     margin-bottom: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: var(--radius);
+    padding: 4px;
   }
 
   .tab {
     flex: 1;
-    padding: 10px;
+    padding: 11px;
     border: none;
-    border-radius: var(--radius);
-    background: var(--surface);
+    border-radius: calc(var(--radius) - 2px);
+    background: transparent;
     color: var(--text-dim);
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s var(--ease);
+    min-height: 44px;
   }
 
   .tab.active {
     background: var(--accent);
     color: white;
+    box-shadow: 0 2px 12px rgba(233, 69, 96, 0.3);
   }
 
-  /* Form */
-  .form-section { display: none; }
-  .form-section.active { display: block; }
+  /* ===== TAB CONTENT ===== */
+  .tab-content {
+    position: relative;
+    overflow: hidden;
+  }
 
+  .form-section, .list-section {
+    transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
+  }
+
+  .form-section { display: none; }
+  .form-section.active {
+    display: block;
+    animation: fadeIn 0.3s var(--ease);
+  }
+
+  .list-section { display: none; }
+  .list-section.active {
+    display: block;
+    animation: fadeIn 0.3s var(--ease);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== FORM ===== */
   .form-group {
-    margin-bottom: 12px;
+    margin-bottom: 14px;
   }
 
   .form-group label {
     display: block;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.2px;
     color: var(--text-dim);
-    margin-bottom: 6px;
+    margin-bottom: 8px;
+    font-weight: 600;
   }
 
   .form-group input, .form-group select {
     width: 100%;
-    padding: 12px 14px;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: var(--radius);
+    padding: 14px 16px;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
     background: var(--surface);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     color: var(--text);
     font-size: 1rem;
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+    min-height: 48px;
   }
 
   .form-group input:focus, .form-group select:focus {
-    border-color: var(--accent);
+    border-color: rgba(233, 69, 96, 0.5);
+    box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
   }
 
   .payer-toggle {
@@ -178,45 +314,131 @@
 
   .payer-btn {
     flex: 1;
-    padding: 12px;
-    border: 2px solid rgba(255,255,255,0.1);
-    border-radius: var(--radius);
+    padding: 14px;
+    border: 2px solid var(--glass-border);
+    border-radius: var(--radius-sm);
     background: var(--surface);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     color: var(--text-dim);
     font-size: 0.95rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s var(--ease);
+    min-height: 48px;
   }
 
   .payer-btn.selected {
     border-color: var(--accent);
     color: var(--text);
-    background: rgba(233,69,96,0.15);
+    background: rgba(233, 69, 96, 0.12);
+    box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.08);
   }
 
-  .btn-add {
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: var(--radius);
-    background: var(--accent);
-    color: white;
-    font-size: 1rem;
-    font-weight: 700;
+  /* ===== CATEGORIES ===== */
+  .category-select {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .cat-btn {
+    padding: 10px 14px;
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    background: var(--surface);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: transform 0.1s, opacity 0.2s;
-    margin-top: 4px;
+    transition: all 0.2s var(--ease);
+    min-height: 40px;
   }
 
-  .btn-add:active { transform: scale(0.98); }
+  .cat-btn.selected {
+    border-color: var(--accent);
+    color: var(--text);
+    background: rgba(233, 69, 96, 0.12);
+  }
 
-  /* Expense list */
-  .list-section { display: none; }
-  .list-section.active { display: block; }
+  /* ===== FAB ===== */
+  .fab {
+    position: fixed;
+    bottom: 28px;
+    right: 24px;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, var(--accent), #c23152);
+    color: white;
+    font-size: 1.6rem;
+    font-weight: 300;
+    cursor: pointer;
+    box-shadow: var(--shadow-fab);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  }
+
+  .fab:active {
+    transform: scale(0.9);
+    box-shadow: 0 3px 12px rgba(233, 69, 96, 0.3);
+  }
+
+  .fab-label {
+    position: fixed;
+    bottom: 92px;
+    right: 20px;
+    background: var(--surface-solid);
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s var(--ease);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* ===== EXPENSE LIST ===== */
+  .filter-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s var(--ease);
+    min-height: 36px;
+  }
+
+  .filter-btn.active {
+    border-color: var(--accent);
+    color: var(--text);
+    background: rgba(233, 69, 96, 0.12);
+  }
 
   .expense-item {
     background: var(--surface);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius);
     padding: 14px;
     margin-bottom: 8px;
@@ -224,43 +446,95 @@
     align-items: center;
     gap: 12px;
     position: relative;
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+    touch-action: pan-y;
+    animation: fadeSlideIn 0.3s var(--ease);
+  }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .expense-item.swiping {
+    transition: none !important;
+  }
+
+  .expense-item.removing {
+    animation: fadeSlideOut 0.3s var(--ease) forwards;
+  }
+
+  @keyframes fadeSlideOut {
+    to { opacity: 0; transform: translateX(-100%); height: 0; margin: 0; padding: 0; overflow: hidden; }
+  }
+
+  .swipe-delete-bg {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .expense-item-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+    background: var(--surface);
+    transition: transform 0.2s var(--ease);
   }
 
   .expense-avatar {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 0.8rem;
-    font-weight: 700;
+    font-weight: 800;
     flex-shrink: 0;
   }
 
-  .avatar-pierre { background: rgba(245,166,35,0.2); color: var(--orange); }
-  .avatar-bogi { background: rgba(233,69,96,0.2); color: var(--accent); }
+  .avatar-pierre { background: rgba(245, 166, 35, 0.15); color: var(--orange); }
+  .avatar-bogi { background: rgba(233, 69, 96, 0.15); color: var(--accent); }
 
   .expense-info { flex: 1; min-width: 0; }
 
   .expense-desc {
-    font-weight: 600;
+    font-weight: 700;
     font-size: 0.95rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    letter-spacing: -0.2px;
   }
 
   .expense-meta {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: var(--text-dim);
-    margin-top: 2px;
+    margin-top: 3px;
   }
 
   .expense-amount {
-    font-weight: 700;
-    font-size: 1.1rem;
+    font-weight: 800;
+    font-size: 1.05rem;
     flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.3px;
   }
 
   .expense-delete {
@@ -272,9 +546,10 @@
     color: var(--text-dim);
     font-size: 1rem;
     cursor: pointer;
-    padding: 4px 6px;
-    opacity: 0.4;
+    padding: 6px 8px;
+    opacity: 0.3;
     transition: opacity 0.2s;
+    z-index: 2;
   }
 
   .expense-delete:hover, .expense-delete:active {
@@ -284,274 +559,301 @@
 
   .empty-state {
     text-align: center;
-    padding: 40px 20px;
+    padding: 48px 20px;
     color: var(--text-dim);
   }
 
-  .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; }
-
-  /* Filter */
-  .filter-bar {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-  }
-
-  .filter-btn {
-    padding: 6px 14px;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 20px;
-    background: transparent;
-    color: var(--text-dim);
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .filter-btn.active {
-    border-color: var(--accent);
-    color: var(--text);
-    background: rgba(233,69,96,0.15);
-  }
-
-  /* Trip selector */
-  .trip-bar {
-    display: flex;
-    gap: 8px;
-    align-items: center;
+  .empty-state svg {
+    width: 64px;
+    height: 64px;
+    opacity: 0.3;
     margin-bottom: 16px;
   }
 
-  .trip-bar select {
-    flex: 1;
-    padding: 10px 12px;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: var(--radius);
-    background: var(--surface);
-    color: var(--text);
+  .empty-state p {
     font-size: 0.9rem;
-    outline: none;
+    font-weight: 500;
   }
 
-  .trip-bar button {
-    padding: 10px 14px;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: var(--radius);
-    background: var(--surface);
-    color: var(--text);
-    font-size: 0.9rem;
-    cursor: pointer;
-  }
-
+  /* ===== MODAL ===== */
   .modal-overlay {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.7);
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: 100;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
     padding: 20px;
   }
 
-  .modal-overlay.show { display: flex; }
-
-  .modal {
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 24px;
-    width: 100%;
-    max-width: 360px;
+  .modal-overlay.show {
+    display: flex;
+    animation: fadeIn 0.2s var(--ease);
   }
 
-  .modal h3 { margin-bottom: 16px; }
+  .modal {
+    background: var(--surface-solid);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px 20px 20px 20px;
+    padding: 28px 24px;
+    padding-bottom: calc(28px + env(safe-area-inset-bottom));
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.3s var(--ease);
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal h3 {
+    margin-bottom: 18px;
+    font-size: 1.1rem;
+    font-weight: 800;
+  }
 
   .modal input {
     width: 100%;
-    padding: 12px 14px;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: var(--radius);
+    padding: 14px 16px;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
     background: var(--bg);
     color: var(--text);
     font-size: 1rem;
     outline: none;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
+    min-height: 48px;
+  }
+
+  .modal input:focus {
+    border-color: rgba(233, 69, 96, 0.5);
+    box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
   }
 
   .modal-actions {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     justify-content: flex-end;
   }
 
   .modal-actions button {
-    padding: 10px 20px;
+    padding: 12px 24px;
     border: none;
-    border-radius: var(--radius);
+    border-radius: var(--radius-sm);
     font-size: 0.9rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
+    min-height: 44px;
+    transition: transform 0.15s var(--ease);
   }
 
-  .btn-cancel { background: rgba(255,255,255,0.1); color: var(--text); }
+  .modal-actions button:active { transform: scale(0.95); }
+
+  .btn-cancel { background: rgba(255, 255, 255, 0.08); color: var(--text); }
   .btn-confirm { background: var(--accent); color: white; }
+  .btn-danger-modal { background: rgba(233, 69, 96, 0.15); color: var(--accent); }
 
   .btn-danger {
     background: transparent;
-    border: 1px solid var(--accent) !important;
+    border: 1px solid rgba(233, 69, 96, 0.3) !important;
     color: var(--accent);
     font-size: 0.8rem !important;
-    padding: 8px 14px !important;
   }
 
-  /* Category badges */
-  .category-select {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .cat-btn {
-    padding: 8px 12px;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 20px;
-    background: transparent;
-    color: var(--text-dim);
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .cat-btn.selected {
-    border-color: var(--accent);
-    color: var(--text);
-    background: rgba(233,69,96,0.15);
-  }
-
-  /* Toast */
+  /* ===== TOAST ===== */
   .toast {
     position: fixed;
-    bottom: 30px;
+    bottom: 100px;
     left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--green);
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(78, 204, 163, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     color: var(--bg);
-    padding: 12px 24px;
+    padding: 12px 28px;
     border-radius: 30px;
-    font-weight: 600;
-    font-size: 0.9rem;
+    font-weight: 700;
+    font-size: 0.85rem;
     opacity: 0;
-    transition: all 0.3s ease;
+    transition: all 0.35s var(--ease);
     z-index: 200;
+    pointer-events: none;
   }
 
   .toast.show {
     transform: translateX(-50%) translateY(0);
     opacity: 1;
   }
+
+  /* ===== CONFIRM MODAL ===== */
+  .confirm-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 150;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .confirm-overlay.show {
+    display: flex;
+    animation: fadeIn 0.2s var(--ease);
+  }
+
+  .confirm-box {
+    background: var(--surface-solid);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    padding: 24px;
+    width: 100%;
+    max-width: 320px;
+    text-align: center;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.3s var(--ease);
+  }
+
+  .confirm-box p {
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+    line-height: 1.5;
+    font-weight: 500;
+  }
+
+  .confirm-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .confirm-actions button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    min-height: 44px;
+    transition: transform 0.15s var(--ease);
+  }
+
+  .confirm-actions button:active { transform: scale(0.95); }
 </style>
 </head>
 <body>
 
-<header>
+<header id="header">
   <h1>Balance Money</h1>
-  <p>Pierre (70%) & Bogi (30%)</p>
+  <p class="header-sub" data-i18n="appSubtitle">Pierre (70%) & Bogi (30%)</p>
+  <div class="lang-switcher">
+    <button class="lang-btn active" onclick="setLang('fr')">FR</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('hu')">HU</button>
+  </div>
   <div class="sync-status" id="syncStatus"></div>
 </header>
 
 <div class="container">
-
-  <!-- Trip selector -->
   <div class="trip-bar">
     <select id="tripSelect" onchange="switchTrip()"></select>
-    <button onclick="showNewTripModal()">+ Voyage</button>
-    <button class="btn-danger" onclick="deleteCurrentTrip()">Suppr.</button>
+    <button onclick="showNewTripModal()" data-i18n="newTrip">+ Voyage</button>
+    <button class="btn-danger" onclick="deleteCurrentTrip()" data-i18n="deleteTrip">Suppr.</button>
   </div>
 
-  <!-- Summary -->
   <div class="summary">
     <div class="card">
-      <div class="card-label">Pierre a paye</div>
+      <div class="card-label" data-i18n="pierrePaid">Pierre a paye</div>
       <div class="card-value" id="paidPierre">0 EUR</div>
-      <div class="person-detail" id="duePierre">Doit : 0 EUR</div>
+      <div class="person-detail" id="duePierre"></div>
     </div>
     <div class="card">
-      <div class="card-label">Bogi a paye</div>
+      <div class="card-label" data-i18n="bogiPaid">Bogi a paye</div>
       <div class="card-value" id="paidBogi">0 EUR</div>
-      <div class="person-detail" id="dueBogi">Doit : 0 EUR</div>
+      <div class="person-detail" id="dueBogi"></div>
     </div>
     <div class="card card-full">
-      <div class="card-label">Total depenses</div>
+      <div class="card-label" data-i18n="totalExpenses">Total depenses</div>
       <div class="card-value" id="totalAmount">0 EUR</div>
     </div>
     <div class="card card-full">
-      <div class="card-label">Solde</div>
-      <div class="card-value" id="balanceText">Tout est equilibre !</div>
+      <div class="card-label" data-i18n="balance">Solde</div>
+      <div class="card-value" id="balanceText"></div>
     </div>
   </div>
 
-  <!-- Tabs -->
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('add')" id="tabAdd">Ajouter</button>
-    <button class="tab" onclick="switchTab('list')" id="tabList">Historique</button>
+    <button class="tab active" onclick="switchTab('add')" id="tabAdd" data-i18n="tabAdd">Ajouter</button>
+    <button class="tab" onclick="switchTab('list')" id="tabList" data-i18n="tabHistory">Historique</button>
   </div>
 
-  <!-- Add form -->
-  <div class="form-section active" id="sectionAdd">
-    <div class="form-group">
-      <label>Description</label>
-      <input type="text" id="inputDesc" placeholder="Restaurant, taxi, musee..." autocomplete="off">
-    </div>
-    <div class="form-group">
-      <label>Montant (EUR)</label>
-      <input type="number" id="inputAmount" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
-    </div>
-    <div class="form-group">
-      <label>Qui a paye ?</label>
-      <div class="payer-toggle">
-        <button class="payer-btn selected" onclick="selectPayer('Pierre')" id="btnPierre">Pierre</button>
-        <button class="payer-btn" onclick="selectPayer('Bogi')" id="btnBogi">Bogi</button>
+  <div class="tab-content">
+    <div class="form-section active" id="sectionAdd">
+      <div class="form-group">
+        <label data-i18n="labelDesc">Description</label>
+        <input type="text" id="inputDesc" data-i18n="placeholderDesc" data-i18n-attr="placeholder" placeholder="Restaurant, taxi, musee..." autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label data-i18n="labelAmount">Montant (EUR)</label>
+        <input type="number" id="inputAmount" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+      </div>
+      <div class="form-group">
+        <label data-i18n="labelPayer">Qui a paye ?</label>
+        <div class="payer-toggle">
+          <button class="payer-btn selected" onclick="selectPayer('Pierre')" id="btnPierre">Pierre</button>
+          <button class="payer-btn" onclick="selectPayer('Bogi')" id="btnBogi">Bogi</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label data-i18n="labelCategory">Categorie</label>
+        <div class="category-select" id="categorySelect"></div>
+      </div>
+      <div class="form-group">
+        <label data-i18n="labelDate">Date</label>
+        <input type="date" id="inputDate">
       </div>
     </div>
-    <div class="form-group">
-      <label>Categorie</label>
-      <div class="category-select">
-        <button class="cat-btn selected" data-cat="resto" onclick="selectCat(this)">Restaurant</button>
-        <button class="cat-btn" data-cat="transport" onclick="selectCat(this)">Transport</button>
-        <button class="cat-btn" data-cat="logement" onclick="selectCat(this)">Logement</button>
-        <button class="cat-btn" data-cat="courses" onclick="selectCat(this)">Courses</button>
-        <button class="cat-btn" data-cat="activite" onclick="selectCat(this)">Activite</button>
-        <button class="cat-btn" data-cat="autre" onclick="selectCat(this)">Autre</button>
+
+    <div class="list-section" id="sectionList">
+      <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all" onclick="setFilter('all', this)" data-i18n="filterAll">Tout</button>
+        <button class="filter-btn" data-filter="Pierre" onclick="setFilter('Pierre', this)">Pierre</button>
+        <button class="filter-btn" data-filter="Bogi" onclick="setFilter('Bogi', this)">Bogi</button>
       </div>
+      <div id="expenseList"></div>
     </div>
-    <div class="form-group">
-      <label>Date</label>
-      <input type="date" id="inputDate">
-    </div>
-    <button class="btn-add" onclick="addExpense()">Ajouter la depense</button>
   </div>
-
-  <!-- List -->
-  <div class="list-section" id="sectionList">
-    <div class="filter-bar">
-      <button class="filter-btn active" data-filter="all" onclick="setFilter('all', this)">Tout</button>
-      <button class="filter-btn" data-filter="Pierre" onclick="setFilter('Pierre', this)">Pierre</button>
-      <button class="filter-btn" data-filter="Bogi" onclick="setFilter('Bogi', this)">Bogi</button>
-    </div>
-    <div id="expenseList"></div>
-  </div>
-
 </div>
 
+<!-- FAB -->
+<button class="fab" id="fab" onclick="onFabClick()">+</button>
+
 <!-- New trip modal -->
-<div class="modal-overlay" id="tripModal">
+<div class="modal-overlay" id="tripModal" onclick="if(event.target===this)closeTripModal()">
   <div class="modal">
-    <h3>Nouveau voyage</h3>
-    <input type="text" id="tripName" placeholder="Ex: Budapest 2026" autocomplete="off">
+    <h3 data-i18n="modalNewTrip">Nouveau voyage</h3>
+    <input type="text" id="tripName" data-i18n="placeholderTrip" data-i18n-attr="placeholder" placeholder="Ex: Budapest 2026" autocomplete="off">
     <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeTripModal()">Annuler</button>
-      <button class="btn-confirm" onclick="createTrip()">Creer</button>
+      <button class="btn-cancel" onclick="closeTripModal()" data-i18n="btnCancel">Annuler</button>
+      <button class="btn-confirm" onclick="createTrip()" data-i18n="btnCreate">Creer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm modal -->
+<div class="confirm-overlay" id="confirmOverlay" onclick="if(event.target===this)closeConfirm()">
+  <div class="confirm-box">
+    <p id="confirmText"></p>
+    <div class="confirm-actions">
+      <button class="btn-cancel" onclick="closeConfirm()" data-i18n="btnCancel">Annuler</button>
+      <button class="btn-confirm" id="confirmYes" data-i18n="btnConfirm">Confirmer</button>
     </div>
   </div>
 </div>
@@ -565,8 +867,199 @@
 
 <script>
   // ============================================================
-  // FIREBASE CONFIG - A remplir avec tes infos Firebase
-  // Voir README.md pour les instructions de configuration
+  // i18n
+  // ============================================================
+  const i18n = {
+    fr: {
+      appSubtitle: 'Pierre (70%) & Bogi (30%)',
+      syncActive: 'Synchro Firebase active',
+      syncOffline: 'Mode hors-ligne (localStorage)',
+      newTrip: '+ Voyage',
+      deleteTrip: 'Suppr.',
+      pierrePaid: 'Pierre a paye',
+      bogiPaid: 'Bogi a paye',
+      owes: 'Doit : {amount} ({pct}%)',
+      totalExpenses: 'Total depenses',
+      balance: 'Solde',
+      balanced: 'Tout est equilibre !',
+      xOwesY: '{debtor} doit {amount} a {creditor}',
+      tabAdd: 'Ajouter',
+      tabHistory: 'Historique',
+      labelDesc: 'Description',
+      placeholderDesc: 'Restaurant, taxi, musee...',
+      labelAmount: 'Montant (EUR)',
+      labelPayer: 'Qui a paye ?',
+      labelCategory: 'Categorie',
+      labelDate: 'Date',
+      btnAdd: 'Ajouter la depense',
+      catResto: '🍽 Restaurant',
+      catTransport: '🚕 Transport',
+      catLogement: '🏨 Logement',
+      catCourses: '🛒 Courses',
+      catActivite: '🎭 Activite',
+      catAutre: '📦 Autre',
+      filterAll: 'Tout',
+      modalNewTrip: 'Nouveau voyage',
+      placeholderTrip: 'Ex: Budapest 2026',
+      btnCancel: 'Annuler',
+      btnCreate: 'Creer',
+      btnConfirm: 'Confirmer',
+      toastTripCreated: 'Voyage cree !',
+      toastCantDeleteLast: 'Impossible de supprimer le dernier voyage',
+      confirmDeleteTrip: 'Supprimer "{name}" et toutes ses depenses ?',
+      toastTripDeleted: 'Voyage supprime',
+      toastAddDesc: 'Ajoute une description',
+      toastAddAmount: 'Ajoute un montant valide',
+      toastAdded: '{amount} ajoute !',
+      toastDeleted: 'Depense supprimee',
+      deleteTitle: 'Supprimer',
+      emptyNoExpenses: 'Aucune depense encore',
+      emptyNoExpensesFor: 'Aucune depense pour {name}',
+      defaultTrip: 'Voyage 1'
+    },
+    en: {
+      appSubtitle: 'Pierre (70%) & Bogi (30%)',
+      syncActive: 'Firebase sync active',
+      syncOffline: 'Offline mode (localStorage)',
+      newTrip: '+ Trip',
+      deleteTrip: 'Delete',
+      pierrePaid: 'Pierre paid',
+      bogiPaid: 'Bogi paid',
+      owes: 'Owes: {amount} ({pct}%)',
+      totalExpenses: 'Total expenses',
+      balance: 'Balance',
+      balanced: 'All settled!',
+      xOwesY: '{debtor} owes {amount} to {creditor}',
+      tabAdd: 'Add',
+      tabHistory: 'History',
+      labelDesc: 'Description',
+      placeholderDesc: 'Restaurant, taxi, museum...',
+      labelAmount: 'Amount (EUR)',
+      labelPayer: 'Who paid?',
+      labelCategory: 'Category',
+      labelDate: 'Date',
+      btnAdd: 'Add expense',
+      catResto: '🍽 Restaurant',
+      catTransport: '🚕 Transport',
+      catLogement: '🏨 Accommodation',
+      catCourses: '🛒 Groceries',
+      catActivite: '🎭 Activity',
+      catAutre: '📦 Other',
+      filterAll: 'All',
+      modalNewTrip: 'New trip',
+      placeholderTrip: 'E.g. Budapest 2026',
+      btnCancel: 'Cancel',
+      btnCreate: 'Create',
+      btnConfirm: 'Confirm',
+      toastTripCreated: 'Trip created!',
+      toastCantDeleteLast: 'Cannot delete the last trip',
+      confirmDeleteTrip: 'Delete "{name}" and all its expenses?',
+      toastTripDeleted: 'Trip deleted',
+      toastAddDesc: 'Add a description',
+      toastAddAmount: 'Enter a valid amount',
+      toastAdded: '{amount} added!',
+      toastDeleted: 'Expense deleted',
+      deleteTitle: 'Delete',
+      emptyNoExpenses: 'No expenses yet',
+      emptyNoExpensesFor: 'No expenses for {name}',
+      defaultTrip: 'Trip 1'
+    },
+    hu: {
+      appSubtitle: 'Pierre (70%) & Bogi (30%)',
+      syncActive: 'Firebase szinkron aktiv',
+      syncOffline: 'Offline mod (localStorage)',
+      newTrip: '+ Ut',
+      deleteTrip: 'Torles',
+      pierrePaid: 'Pierre fizetett',
+      bogiPaid: 'Bogi fizetett',
+      owes: 'Fizet: {amount} ({pct}%)',
+      totalExpenses: 'Osszes kiadas',
+      balance: 'Egyenleg',
+      balanced: 'Minden rendben!',
+      xOwesY: '{debtor} tartozik {amount} {creditor}-nek',
+      tabAdd: 'Hozzaadas',
+      tabHistory: 'Elozmenyek',
+      labelDesc: 'Leiras',
+      placeholderDesc: 'Etterem, taxi, muzeum...',
+      labelAmount: 'Osszeg (EUR)',
+      labelPayer: 'Ki fizetett?',
+      labelCategory: 'Kategoria',
+      labelDate: 'Datum',
+      btnAdd: 'Kiadas hozzaadasa',
+      catResto: '🍽 Etterem',
+      catTransport: '🚕 Kozlekedes',
+      catLogement: '🏨 Szallas',
+      catCourses: '🛒 Bevasarlas',
+      catActivite: '🎭 Tevekenyseg',
+      catAutre: '📦 Egyeb',
+      filterAll: 'Mind',
+      modalNewTrip: 'Uj utazas',
+      placeholderTrip: 'Pl. Budapest 2026',
+      btnCancel: 'Megse',
+      btnCreate: 'Letrehozas',
+      btnConfirm: 'Megerosites',
+      toastTripCreated: 'Utazas letrehozva!',
+      toastCantDeleteLast: 'Az utolso utazas nem torolheto',
+      confirmDeleteTrip: '"{name}" es az osszes kiadasa torlese?',
+      toastTripDeleted: 'Utazas torolve',
+      toastAddDesc: 'Add meg a leirast',
+      toastAddAmount: 'Adj meg ervenyes osszeget',
+      toastAdded: '{amount} hozzaadva!',
+      toastDeleted: 'Kiadas torolve',
+      deleteTitle: 'Torles',
+      emptyNoExpenses: 'Meg nincs kiadas',
+      emptyNoExpensesFor: 'Nincs kiadas: {name}',
+      defaultTrip: 'Utazas 1'
+    }
+  };
+
+  let currentLang = localStorage.getItem('bm-lang') || 'fr';
+
+  function t(key, params = {}) {
+    let str = i18n[currentLang]?.[key] || i18n['fr'][key] || key;
+    for (const [k, v] of Object.entries(params)) {
+      str = str.replaceAll(`{${k}}`, v);
+    }
+    return str;
+  }
+
+  function getCatLabel(catKey) {
+    const map = {
+      resto: 'catResto', transport: 'catTransport', logement: 'catLogement',
+      courses: 'catCourses', activite: 'catActivite', autre: 'catAutre'
+    };
+    return t(map[catKey] || 'catAutre');
+  }
+
+  function applyLanguage() {
+    document.documentElement.lang = currentLang;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      const attr = el.getAttribute('data-i18n-attr');
+      if (attr) {
+        el.setAttribute(attr, t(key));
+      } else {
+        el.textContent = t(key);
+      }
+    });
+    // Update lang buttons
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === currentLang);
+    });
+    // Re-render dynamic content
+    renderCategories();
+    render();
+  }
+
+  function setLang(lang) {
+    currentLang = lang;
+    localStorage.setItem('bm-lang', lang);
+    haptic();
+    applyLanguage();
+  }
+
+  // ============================================================
+  // FIREBASE CONFIG
   // ============================================================
   const FIREBASE_CONFIG = {
     apiKey: "AIzaSyDxk-ruq0X4F9dJ53fP3ix6Est_okbYLY0",
@@ -577,7 +1070,6 @@
     messagingSenderId: "913964879032",
     appId: "1:913964879032:web:68f4e051ecc56c8f36784d"
   };
-  // ============================================================
 
   // --- Firebase init ---
   let db = null;
@@ -593,27 +1085,29 @@
     }
   }
 
-  // --- State ---
+  // ============================================================
+  // STATE
+  // ============================================================
   let trips = {};
   let currentTrip = localStorage.getItem('bm-current-trip') || null;
   let currentFilter = 'all';
   let selectedPayer = 'Pierre';
   let selectedCat = 'resto';
+  let currentTab = 'add';
+  let prevAmounts = { total: 0, pierre: 0, bogi: 0 };
 
-  // --- Sync status ---
+  // ============================================================
+  // SYNC STATUS
+  // ============================================================
   function setSyncStatus(ok) {
     const el = document.getElementById('syncStatus');
-    if (ok) {
-      el.textContent = 'Synchro Firebase active';
-      el.className = 'sync-status sync-ok';
-    } else {
-      el.textContent = 'Mode hors-ligne (localStorage)';
-      el.className = 'sync-status sync-off';
-    }
+    el.textContent = ok ? t('syncActive') : t('syncOffline');
+    el.className = 'sync-status ' + (ok ? 'sync-ok' : 'sync-off');
   }
 
-  // --- Data layer ---
-  // Converts Firebase object { key: {expense} } to array with _key property
+  // ============================================================
+  // DATA LAYER
+  // ============================================================
   function expensesObjToArray(obj) {
     if (!obj) return [];
     return Object.entries(obj).map(([key, val]) => ({ ...val, _key: key }));
@@ -625,19 +1119,17 @@
     return Array.isArray(trip.expenses) ? trip.expenses : expensesObjToArray(trip.expenses);
   }
 
-  // --- Firebase listeners ---
+  // Firebase listeners
   if (firebaseReady) {
     db.ref('trips').on('value', (snapshot) => {
       trips = snapshot.val() || {};
-      // If no trips exist, create a default one
       if (Object.keys(trips).length === 0) {
         const ref = db.ref('trips').push();
-        ref.set({ name: 'Voyage 1' });
+        ref.set({ name: t('defaultTrip') });
         currentTrip = ref.key;
         localStorage.setItem('bm-current-trip', currentTrip);
-        return; // onValue will fire again
+        return;
       }
-      // If currentTrip doesn't exist, pick first
       if (!currentTrip || !trips[currentTrip]) {
         currentTrip = Object.keys(trips)[0];
         localStorage.setItem('bm-current-trip', currentTrip);
@@ -650,12 +1142,10 @@
       fallbackToLocalStorage();
     });
 
-    // Connection state
     db.ref('.info/connected').on('value', (snap) => {
       setSyncStatus(snap.val() === true);
     });
   } else {
-    // No Firebase - use localStorage
     fallbackToLocalStorage();
   }
 
@@ -673,7 +1163,7 @@
     } catch(e) {}
     if (Object.keys(trips).length === 0) {
       const id = 'trip_' + Date.now();
-      trips[id] = { name: 'Voyage 1', expenses: [] };
+      trips[id] = { name: t('defaultTrip'), expenses: [] };
       currentTrip = id;
     }
     render();
@@ -683,7 +1173,9 @@
     localStorage.setItem('balance-money', JSON.stringify({ trips, currentTrip }));
   }
 
-  // --- Trips ---
+  // ============================================================
+  // TRIPS
+  // ============================================================
   function renderTripSelect() {
     const sel = document.getElementById('tripSelect');
     sel.innerHTML = '';
@@ -699,13 +1191,14 @@
   function switchTrip() {
     currentTrip = document.getElementById('tripSelect').value;
     localStorage.setItem('bm-current-trip', currentTrip);
+    haptic();
     render();
   }
 
   function showNewTripModal() {
     document.getElementById('tripModal').classList.add('show');
     document.getElementById('tripName').value = '';
-    document.getElementById('tripName').focus();
+    setTimeout(() => document.getElementById('tripName').focus(), 100);
   }
 
   function closeTripModal() {
@@ -728,40 +1221,43 @@
       saveToLocalBackup();
       render();
     }
-
     closeTripModal();
-    showToast('Voyage cree !');
+    haptic();
+    showToast(t('toastTripCreated'));
   }
 
   function deleteCurrentTrip() {
     const keys = Object.keys(trips);
     if (keys.length <= 1) {
-      showToast('Impossible de supprimer le dernier voyage');
+      showToast(t('toastCantDeleteLast'));
       return;
     }
-    const name = trips[currentTrip]?.name || 'ce voyage';
-    if (!confirm(`Supprimer "${name}" et toutes ses depenses ?`)) return;
-
-    if (firebaseReady) {
-      db.ref('trips/' + currentTrip).remove();
-    } else {
-      delete trips[currentTrip];
-      saveToLocalBackup();
-    }
-    currentTrip = Object.keys(trips).filter(k => k !== currentTrip)[0] || Object.keys(trips)[0];
-    localStorage.setItem('bm-current-trip', currentTrip);
-    if (!firebaseReady) render();
-    showToast('Voyage supprime');
+    const name = trips[currentTrip]?.name || '';
+    showConfirm(t('confirmDeleteTrip', { name }), () => {
+      if (firebaseReady) {
+        db.ref('trips/' + currentTrip).remove();
+      } else {
+        delete trips[currentTrip];
+        saveToLocalBackup();
+      }
+      currentTrip = Object.keys(trips).filter(k => k !== currentTrip)[0] || Object.keys(trips)[0];
+      localStorage.setItem('bm-current-trip', currentTrip);
+      if (!firebaseReady) render();
+      haptic();
+      showToast(t('toastTripDeleted'));
+    });
   }
 
-  // --- Expenses ---
+  // ============================================================
+  // EXPENSES
+  // ============================================================
   function addExpense() {
     const desc = document.getElementById('inputDesc').value.trim();
     const amount = parseFloat(document.getElementById('inputAmount').value);
     const date = document.getElementById('inputDate').value;
 
-    if (!desc) { showToast('Ajoute une description'); return; }
-    if (!amount || amount <= 0) { showToast('Ajoute un montant valide'); return; }
+    if (!desc) { showToast(t('toastAddDesc')); return; }
+    if (!amount || amount <= 0) { showToast(t('toastAddAmount')); return; }
 
     const expense = {
       desc,
@@ -782,15 +1278,25 @@
       render();
     }
 
-    // Reset form
     document.getElementById('inputDesc').value = '';
     document.getElementById('inputAmount').value = '';
     document.getElementById('inputDate').value = new Date().toISOString().slice(0, 10);
 
-    showToast(`${formatMoney(amount)} ajoute !`);
+    haptic();
+    showToast(t('toastAdded', { amount: formatMoney(amount) }));
   }
 
   function deleteExpense(key) {
+    const item = document.querySelector(`[data-key="${key}"]`);
+    if (item) {
+      item.classList.add('removing');
+      setTimeout(() => doDelete(key), 300);
+    } else {
+      doDelete(key);
+    }
+  }
+
+  function doDelete(key) {
     if (firebaseReady) {
       db.ref('trips/' + currentTrip + '/expenses/' + key).remove();
     } else {
@@ -802,14 +1308,29 @@
         render();
       }
     }
-    showToast('Depense supprimee');
+    haptic();
+    showToast(t('toastDeleted'));
   }
 
-  // --- Rendering ---
+  // ============================================================
+  // RENDERING
+  // ============================================================
   function render() {
     renderTripSelect();
     renderSummary();
     renderList();
+  }
+
+  function animateValue(el, start, end, duration) {
+    if (Math.abs(start - end) < 0.01) { el.textContent = formatMoney(end); return; }
+    const startTime = performance.now();
+    function tick(now) {
+      const p = Math.min((now - startTime) / duration, 1);
+      const ease = 1 - Math.pow(1 - p, 3); // easeOutCubic
+      el.textContent = formatMoney(start + (end - start) * ease);
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
   }
 
   function renderSummary() {
@@ -821,23 +1342,30 @@
     const duePierre = total * 0.7;
     const dueBogi = total * 0.3;
 
-    document.getElementById('totalAmount').textContent = formatMoney(total);
-    document.getElementById('paidPierre').textContent = formatMoney(paidPierre);
-    document.getElementById('paidBogi').textContent = formatMoney(paidBogi);
-    document.getElementById('duePierre').textContent = `Doit : ${formatMoney(duePierre)} (70%)`;
-    document.getElementById('dueBogi').textContent = `Doit : ${formatMoney(dueBogi)} (30%)`;
+    const elTotal = document.getElementById('totalAmount');
+    const elPierre = document.getElementById('paidPierre');
+    const elBogi = document.getElementById('paidBogi');
+
+    animateValue(elTotal, prevAmounts.total, total, 400);
+    animateValue(elPierre, prevAmounts.pierre, paidPierre, 400);
+    animateValue(elBogi, prevAmounts.bogi, paidBogi, 400);
+
+    prevAmounts = { total, pierre: paidPierre, bogi: paidBogi };
+
+    document.getElementById('duePierre').textContent = t('owes', { amount: formatMoney(duePierre), pct: '70' });
+    document.getElementById('dueBogi').textContent = t('owes', { amount: formatMoney(dueBogi), pct: '30' });
 
     const balanceEl = document.getElementById('balanceText');
     const diff = paidPierre - duePierre;
 
     if (Math.abs(diff) < 0.01) {
-      balanceEl.textContent = 'Tout est equilibre !';
+      balanceEl.textContent = t('balanced');
       balanceEl.className = 'card-value balance-settled';
     } else if (diff > 0) {
-      balanceEl.textContent = `Bogi doit ${formatMoney(diff)} a Pierre`;
+      balanceEl.textContent = t('xOwesY', { debtor: 'Bogi', amount: formatMoney(diff), creditor: 'Pierre' });
       balanceEl.className = 'card-value balance-bogi';
     } else {
-      balanceEl.textContent = `Pierre doit ${formatMoney(-diff)} a Bogi`;
+      balanceEl.textContent = t('xOwesY', { debtor: 'Pierre', amount: formatMoney(-diff), creditor: 'Bogi' });
       balanceEl.className = 'card-value balance-pierre';
     }
   }
@@ -846,7 +1374,6 @@
     const container = document.getElementById('expenseList');
     let expenses = [...getExpenses()];
 
-    // Sort by date desc, then createdAt desc
     expenses.sort((a, b) => {
       const dateCmp = (b.date || '').localeCompare(a.date || '');
       if (dateCmp !== 0) return dateCmp;
@@ -860,40 +1387,66 @@
     if (expenses.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="icon">&#x1F9F3;</div>
-          <p>${currentFilter !== 'all' ? 'Aucune depense pour ' + currentFilter : 'Aucune depense encore'}</p>
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="12" y="8" width="40" height="48" rx="4"/>
+            <line x1="20" y1="20" x2="44" y2="20"/>
+            <line x1="20" y1="28" x2="38" y2="28"/>
+            <line x1="20" y1="36" x2="34" y2="36"/>
+            <circle cx="44" cy="46" r="10" fill="var(--bg)" stroke="currentColor"/>
+            <line x1="40" y1="46" x2="48" y2="46"/>
+          </svg>
+          <p>${currentFilter !== 'all' ? t('emptyNoExpensesFor', { name: currentFilter }) : t('emptyNoExpenses')}</p>
         </div>`;
       return;
     }
 
-    const catLabels = {
-      resto: 'Restaurant', transport: 'Transport', logement: 'Logement',
-      courses: 'Courses', activite: 'Activite', autre: 'Autre'
-    };
-
     container.innerHTML = expenses.map(e => {
       const key = e._key || e.id;
       return `
-      <div class="expense-item">
-        <div class="expense-avatar ${e.payer === 'Pierre' ? 'avatar-pierre' : 'avatar-bogi'}">
-          ${e.payer === 'Pierre' ? 'P' : 'B'}
+      <div class="expense-item" data-key="${key}">
+        <div class="swipe-delete-bg"><span data-i18n-dynamic="deleteTitle">${t('deleteTitle')}</span></div>
+        <div class="expense-item-content">
+          <div class="expense-avatar ${e.payer === 'Pierre' ? 'avatar-pierre' : 'avatar-bogi'}">
+            ${e.payer === 'Pierre' ? 'P' : 'B'}
+          </div>
+          <div class="expense-info">
+            <div class="expense-desc">${escHtml(e.desc)}</div>
+            <div class="expense-meta">${getCatLabel(e.category)} &middot; ${formatDate(e.date)}</div>
+          </div>
+          <div class="expense-amount">${formatMoney(e.amount || 0)}</div>
         </div>
-        <div class="expense-info">
-          <div class="expense-desc">${escHtml(e.desc)}</div>
-          <div class="expense-meta">${catLabels[e.category] || e.category} &middot; ${formatDate(e.date)}</div>
-        </div>
-        <div class="expense-amount">${formatMoney(e.amount || 0)}</div>
-        <button class="expense-delete" onclick="deleteExpense('${key}')" title="Supprimer">&times;</button>
+        <button class="expense-delete" onclick="deleteExpense('${key}')" title="${t('deleteTitle')}">&times;</button>
       </div>`;
     }).join('');
+
+    // Setup swipe-to-delete
+    container.querySelectorAll('.expense-item').forEach(setupSwipe);
   }
 
-  // --- Tabs ---
+  // ============================================================
+  // CATEGORIES RENDER
+  // ============================================================
+  const CATEGORIES = ['resto', 'transport', 'logement', 'courses', 'activite', 'autre'];
+
+  function renderCategories() {
+    const container = document.getElementById('categorySelect');
+    container.innerHTML = CATEGORIES.map(cat =>
+      `<button class="cat-btn${cat === selectedCat ? ' selected' : ''}" data-cat="${cat}" onclick="selectCat(this)">${getCatLabel(cat)}</button>`
+    ).join('');
+  }
+
+  // ============================================================
+  // TABS
+  // ============================================================
   function switchTab(tab) {
+    currentTab = tab;
     document.getElementById('tabAdd').classList.toggle('active', tab === 'add');
     document.getElementById('tabList').classList.toggle('active', tab === 'list');
     document.getElementById('sectionAdd').classList.toggle('active', tab === 'add');
     document.getElementById('sectionList').classList.toggle('active', tab === 'list');
+    // Update FAB
+    document.getElementById('fab').textContent = tab === 'add' ? '✓' : '+';
+    haptic();
     if (tab === 'list') renderList();
   }
 
@@ -901,22 +1454,97 @@
     selectedPayer = payer;
     document.getElementById('btnPierre').classList.toggle('selected', payer === 'Pierre');
     document.getElementById('btnBogi').classList.toggle('selected', payer === 'Bogi');
+    haptic();
   }
 
   function selectCat(btn) {
     document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
     selectedCat = btn.dataset.cat;
+    haptic();
   }
 
   function setFilter(filter, btn) {
     currentFilter = filter;
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
+    haptic();
     renderList();
   }
 
-  // --- Helpers ---
+  // ============================================================
+  // FAB
+  // ============================================================
+  function onFabClick() {
+    if (currentTab === 'add') {
+      addExpense();
+    } else {
+      switchTab('add');
+    }
+  }
+
+  // ============================================================
+  // SWIPE TO DELETE
+  // ============================================================
+  function setupSwipe(el) {
+    let startX = 0, currentX = 0, swiping = false;
+    const content = el.querySelector('.expense-item-content');
+    const bg = el.querySelector('.swipe-delete-bg');
+    const key = el.dataset.key;
+
+    el.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
+      swiping = false;
+    }, { passive: true });
+
+    el.addEventListener('touchmove', (e) => {
+      currentX = e.touches[0].clientX;
+      const dx = startX - currentX;
+      if (dx > 10) {
+        swiping = true;
+        el.classList.add('swiping');
+        const move = Math.min(dx, 100);
+        content.style.transform = `translateX(-${move}px)`;
+        bg.style.opacity = Math.min(dx / 80, 1);
+      }
+    }, { passive: true });
+
+    el.addEventListener('touchend', () => {
+      const dx = startX - currentX;
+      if (swiping && dx > 80) {
+        deleteExpense(key);
+      } else {
+        content.style.transform = '';
+        bg.style.opacity = '0';
+      }
+      el.classList.remove('swiping');
+      swiping = false;
+    }, { passive: true });
+  }
+
+  // ============================================================
+  // CONFIRM MODAL
+  // ============================================================
+  let confirmCallback = null;
+
+  function showConfirm(message, onConfirm) {
+    document.getElementById('confirmText').textContent = message;
+    document.getElementById('confirmOverlay').classList.add('show');
+    confirmCallback = onConfirm;
+    document.getElementById('confirmYes').onclick = () => {
+      closeConfirm();
+      if (confirmCallback) confirmCallback();
+    };
+  }
+
+  function closeConfirm() {
+    document.getElementById('confirmOverlay').classList.remove('show');
+    confirmCallback = null;
+  }
+
+  // ============================================================
+  // HELPERS
+  // ============================================================
   function formatMoney(n) {
     return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' EUR';
   }
@@ -937,10 +1565,30 @@
     const t = document.getElementById('toast');
     t.textContent = msg;
     t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2000);
+    setTimeout(() => t.classList.remove('show'), 2200);
   }
 
-  // --- Init ---
+  function haptic() {
+    try { navigator.vibrate?.(8); } catch(e) {}
+  }
+
+  // ============================================================
+  // COLLAPSIBLE HEADER
+  // ============================================================
+  let lastScroll = 0;
+  window.addEventListener('scroll', () => {
+    const h = document.getElementById('header');
+    if (window.scrollY > 60) {
+      h.classList.add('compact');
+    } else {
+      h.classList.remove('compact');
+    }
+    lastScroll = window.scrollY;
+  }, { passive: true });
+
+  // ============================================================
+  // INIT
+  // ============================================================
   document.getElementById('inputDate').value = new Date().toISOString().slice(0, 10);
 
   document.getElementById('inputAmount').addEventListener('keydown', e => {
@@ -952,6 +1600,10 @@
   document.getElementById('tripName').addEventListener('keydown', e => {
     if (e.key === 'Enter') createTrip();
   });
+
+  // Apply saved language
+  renderCategories();
+  applyLanguage();
 </script>
 
 </body>
